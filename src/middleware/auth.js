@@ -1,19 +1,18 @@
-const jwt = require("jsonwebtoken");
+// src/middleware/auth.js
+const jwt = require('jsonwebtoken');
 
 module.exports = function (req, res, next) {
-  // Token aus Header auslesen
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Kein Token, Zugriff verweigert" });
-  }
+  if (!authHeader) return res.status(401).json({ message: 'Token fehlt' });
 
-  const token = authHeader.split(" ")[1];
+  const token = authHeader.split(' ')[1];
+  if (!token) return res.status(401).json({ message: 'Token fehlt' });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Userdaten aus Token (z.B. id)
+    req.user = decoded; // z.B. { id: 'userId', email: '...' }
     next();
   } catch (err) {
-    return res.status(401).json({ message: "Token ungültig oder abgelaufen" });
+    return res.status(401).json({ message: 'Ungültiger Token' });
   }
 };
